@@ -67,52 +67,10 @@
         <main>
             {% block content %}{% endblock %}
         </main>
-        <div class="info_items">
-            <a href="contactanos.html">
-            <div class="item ">
-                <div class="img-box box-1">
-                <img src="{% static 'publica/images/location-white.png' %}" alt="" />
-                </div>
-                <div class="detail-box">
-                <p>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d13138.344763636775!2d-58.4292198!3d-34.5893358!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb580444166ef%3A0x1b318ce2f33c8279!2sBeauty%20Skin!5e0!3m2!1ses!2sar!4v1680633037289!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </p>
-                </div>
-            </div>
-            </a>
-            <a href="contactanos.html">
-            <div class="item ">
-                <div class="img-box box-3">
-                <img src="images/envelope-white.png" alt="" />
-                </div>
-                <div class="detail-box">
-                <p>
-                    infobellezadetupiel@gmail.com
-                </p>
-                </div>
-            </div>
-            </a>
-            <a href="contactanos.html">
-            <div class="item ">
-                <div class="img-box box-2">
-                <img src="images/telephone-white.png" alt="" />
-                </div>
-                <div class="detail-box">
-                <p>
-                    +54 1130581001
-                </p>
-                </div>
-            </div>
-            </a>
-    
-        </div>
-        </div>
-    <section class="container-fluid footer_section">
-        <p>
-        &copy; 2023 Todos los derechos reservados por alumnos de Codo a Codo
-    
-        </p>
-    </section>
+        
+        {% include "footer.html"%}
+
+        
     {% block scripts %}{% endblock %}
     <script type="text/javascript" src="{% static '/publica/js/jquery-3.4.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static '/static/js/bootstrap.js' %}cd"></script>
