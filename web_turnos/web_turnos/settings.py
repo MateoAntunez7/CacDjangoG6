@@ -75,12 +75,25 @@ WSGI_APPLICATION = 'web_turnos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'citas',
+        'USER': 'postgres',
+        'PASSWORD': 'jumafe',
+        # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
+        'HOST': 'localhost',
+        'PORT': '5432'  # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
     }
 }
+
 
 
 # Password validation
@@ -127,3 +140,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST="smtp.dermatologiamcc.com.ar"
+EMAIL_USE_TLS=False
+EMAIL_PORT=587
+EMAIL_HOST_USER= "info@dermatologiamcc.com.ar"
+EMAIL_HOST_PASSWORD="040785"
+

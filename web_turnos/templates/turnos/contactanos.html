@@ -11,34 +11,10 @@
         <h2 class="custom_heading text-center">CONTACTANOS</h2>
       </div>
       <form
-        id="form"
-        name="form"
-        action="https://formspree.io/f/meqwdbkk"
-        method="POST"
-      >
-        <div>
-          <input type="text" name="name" placeholder="nombre" required />
-        </div>
-        <div>
-          <input type="email" name="_replyto" placeholder="Email" required />
-        </div>
-        <div>
-          <input
-            type="number"
-            name="telefono"
-            placeholder="Teléfono"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="mensaje"
-            name="mensaje"
-            class="message-box"
-            placeholder="Mensaje"
-            required
-          />
-        </div>
+      action="{% url 'contacto' %}"
+      method="POST">
+      {% csrf_token %}
+      {{ contacto_form.as_p }}
         <div class="d-flex justify-content-center mt-4">
           <button type="submit" class="btn btn-primary mb-2">Enviar</button>
         </div>
@@ -50,8 +26,9 @@
 <section class="info_section layout_padding">
   <div class="container layout_padding-top layout_padding2-bottom">
     <div class="logo-box">
-      <a href="index.html">
-        <img src="images/logo.png" alt="" />
+      <a href="{% url 'index' %}">
+        <img src="{% static 'publica/images/logo.png' %}" alt="" />
+      
       </a>
     </div>
     {% endblock %}
