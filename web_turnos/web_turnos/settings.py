@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+6pdt%&5-za+&!3u@47h5y7ax82tpps!@3a=-4!@77q#2xnaow'
+SECRET_KEY = config('SECRET_KEY')
+# SECRET_KEY = 'django-insecure-+6pdt%&5-za+&!3u@47h5y7ax82tpps!@3a=-4!@77q#2xnaow' 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -85,14 +87,13 @@ WSGI_APPLICATION = 'web_turnos.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'citas',
-        'USER': 'postgres',
-        'PASSWORD': 'jumafe',
-        # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
-        'HOST': 'localhost',
-        'PORT': '5432'  # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
+        'NAME': config("DB_NAME"),
+        'USER': config("DB_USER"),
+        'PASSWORD': config("DB_PASS"),
+        'HOST': config("DB_HOST"),
+        'PORT': config("DB_PORT")
     }
-}
+}   
 
 
 
@@ -141,10 +142,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST="smtp.dermatologiamcc.com.ar"
-EMAIL_USE_TLS=False
-EMAIL_PORT=587
-EMAIL_HOST_USER= "info@dermatologiamcc.com.ar"
-EMAIL_HOST_PASSWORD="040785"
-
+EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
