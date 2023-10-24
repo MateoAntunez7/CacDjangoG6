@@ -1,26 +1,29 @@
-{% extends "base.html" %} 
-{% load static %}
+{% extends "base.html" %}
+ {% load static %} 
 
+ {% block title %}Listado de Tratamientos{% endblock %}
 
-{% block title %}Listado de tratamientos{% endblock %}
-
-{% block content %}
-<div class="container center">
-<h2>Listado de tratamientos</h2>
-<ul>
-    {% for nombre_usuario in listado_tratamientos %}
+ {% block content %}
+        <h2 class="custom_heading text-center">Listado de Tratamientos</h2>
+        <ul>
+        {% for tratamientos in listado_tratamientos %}
         <li>
-            <p>{{ nombre_usuario| title }}</p>
-        </li>
-    {% empty %}
-        <p>Sin pacientes inscriptos</p>
-    {% endfor %}
-</ul>
 
-{% if cant_tratamientos > 0 %}
-    <p>cantidad de tratamientos: {{cant_tratamientos}}</p>
-{% else %}
-    <p>No hay inscriptos</p>
-{% endif %}
-</div>
-{% endblock %}
+          <p>{{ tratamientos.descripcion}}</p>
+
+        </li>
+        {% empty %}
+        <p>Sin tratamientos</p>
+        {% endfor %}
+        </ul>
+<section class="info_section layout_padding">
+  <div class="container layout_padding-top layout_padding2-bottom">
+    <div class="logo-box">
+      <a href="{% url 'index' %}">
+        <img src="{% static 'publica/images/logo.png' %}" alt="" />
+      
+      </a>
+    </div>
+    {% endblock %}
+  </div>
+</section>

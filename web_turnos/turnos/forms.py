@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from .models import Tratamientos
 
 
 #class BlueBackgroundTextInput(forms.TextInput):
@@ -11,3 +12,8 @@ class ContactoForm(forms.Form):
     mail = forms.EmailField(label="Mail", required=True)
     telefono = forms.CharField(label="telefono")
     mensaje =  forms.CharField(widget=forms.Textarea(attrs={'class': 'message-box'}))
+
+class AltaTratamientoForm(forms.ModelForm):
+    class Meta:
+        model = Tratamientos
+        fields = '__all__'

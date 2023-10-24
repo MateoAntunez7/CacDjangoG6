@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Alta de Tratamientos{% endblock %}
+ {% block section_title %}Alta de Tratamientos{% endblock %}
+
+ {% block content %}
+        <h2 class="custom_heading text-center">Alta de Tratamientos</h2>
+      <form action="{% url 'alta_tratamientos' %}" method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+        <div class="d-flex justify-content-center mt-4">
+          <button type="submit" class="d-flex justify-content-center">Guardar</button>
+        </div>
+      </form>
+    <br> 
+<section class="info_section layout_padding">
+  <div class="container layout_padding-top layout_padding2-bottom">
+    <div class="logo-box">
+      <a href="{% url 'index' %}">
+        <img src="{% static 'publica/images/logo.png' %}" alt="" />
+      
+      </a>
+    </div>
+    {% endblock %}
+  </div>
+</section>
