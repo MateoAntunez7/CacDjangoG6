@@ -5,7 +5,12 @@ from django.contrib import messages
 from django.urls import reverse
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
-
+from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
+from django.db import IntegrityError
+from django.http import HttpResponse
+from django.urls import reverse
+from .models import Tratamientos
 
 
 # Create your views here.
@@ -58,24 +63,26 @@ def contacto(request):
     return render(request, 'turnos/contactanos.html', context)
 
 
-#def tratamientos_listado(request):
-
-    # Esta data en el futuro vendrá de la base de datos
-#    listado = [
-#        'Rellenos con botox',
-#        'Peeling Facial',
-#        'Manicure y Pedicure',
-#        'Mesoterapia',
-#    ]
-
-#    context = {
-#        'nombre_usuario': 'Lorena Perez',
-#        'fecha': datetime.now(),
-#        'especialista': False,
-#        'listado_tratamientos': listado,
-#        'cant_tratamientos': len(listado),
-#    }
-
-#    return render(request, 'turnos/tratamientos_listado.html', context)
+class TratamientoCreateView(CreateView):
+    model = Tratamientos
+    template_name = 'turnos/alta_tratamientos.html'
+    success_url = 'listado'
+    fields = '__all__'
 
 
+    #def form_valid(self, form):
+        # Puedes realizar acciones adicionales antes de guardar el formulario si es necesario
+        # Por ejemplo, asignar valores adicionales al objeto antes de guardarlo en la base de datos.
+    #    return super().form_valid(form)
+    
+
+class TratamientoListView(ListView):
+    model = Tratamientos
+    context_object_name = 'listado_tratamientos'
+    template_name = 'turnos/tratamientos_listado.html'
+    ordering = ['descripcion'] 
+
+    def get_queryset(self):
+        # Define aquí la lógica para obtener el conjunto de consultas según tus necesidades
+        # Por ejemplo, podrías querer filtrar los tratamientos de acuerdo a ciertos criterios
+         return Tratamientos.objects.filter(estado='Activo')

@@ -2,77 +2,85 @@ from django.db import models
 
 # Create your models here.
 
-class especialidades(models.Model):
+class Especialidades(models.Model):
     descripcion = models.CharField(max_length=50, verbose_name="descripcion")
     estado = models.CharField(max_length=8, verbose_name="estado") 
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'especialidades'
+        db_table = 'Especialidades'
 
-class feriados(models.Model):
+class Feriados(models.Model):
     dia = models.DateField()
     descripcion = models.CharField(max_length=50, verbose_name="descripcion")
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'feriados'
+        db_table = 'Feriados'
 
-class obrasociales(models.Model):
+class Obrasociales(models.Model):
     descripcion = models.CharField(max_length=50, verbose_name="descripcion")
     estado = models.CharField(max_length=8, verbose_name="estado") 
     
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'obrasociales'
+        db_table = 'Obrasociales'
 
-class tratamientos(models.Model):
+class Tratamientos(models.Model):
     descripcion = models.CharField(max_length=50, verbose_name="descripcion")
     estado = models.CharField(max_length=8, verbose_name="estado") 
-    
-    class Meta:
-        # Especifica el nombre de la tabla personalizado
-        db_table = 'tratamientos'
 
-class profesionales(models.Model):
+    class Meta:
+        db_table = 'Tratamientos'
+
+class Profesionales(models.Model):
     apellido = models.CharField(max_length=50, verbose_name="apellido")
     nombre = models.CharField(max_length=50, verbose_name="nombre")
     telefono1 = models.CharField(max_length=50, verbose_name="telefono1")
     telefono2 = models.CharField(max_length=50, verbose_name="telefono2")
     email = models.CharField(max_length=50, verbose_name="email")
-    especialidad = models.ForeignKey(especialidades, on_delete=models.CASCADE, verbose_name="especialidad") 
+    especialidad = models.ForeignKey(Especialidades, on_delete=models.CASCADE, verbose_name="especialidad") 
     intervalos = models.TimeField(verbose_name="intervalos")
     sobreturno = models.IntegerField(verbose_name="sobreturno") 
     sobreturnoe = models.IntegerField(verbose_name="sobreturnoe")
-    estado = models.CharField(max_length=8, verbose_name="estado") 
+    estado = models.CharField(max_length=8, verbose_name="estado")
+    tratamiento = models.ManyToManyField(Tratamientos,through="TratamientosProfesionales")  
     
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'profesionales'
+        db_table = 'Profesionales'
 
-class diainactivos(models.Model):
+class TratamientosProfesionales(models.Model):
+    tratamiento = models.ForeignKey(Tratamientos, on_delete=models.CASCADE) 
+    profesional = models.ForeignKey(Profesionales, on_delete=models.CASCADE)
+    
+    class Meta:
+        # Especifica el nombre de la tabla personalizado
+        db_table = 'TratamientosProfesionales'
+
+class Diainactivos(models.Model):
     diadesde = models.DateField()
     descripcion = models.CharField(max_length=50, verbose_name="descripcion")
-    profesional = models.ForeignKey(profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
+    profesional = models.ForeignKey(Profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
     class Meta:
         # Especifica el nombre de la tabla personalizado
         db_table = 'diainactivos'
 
-class tdiahoras(models.Model):
-    profesional = models.ForeignKey(profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
+class Diahoras(models.Model):
+    profesional = models.ForeignKey(Profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
     dia = models.IntegerField(verbose_name="dia") 
     horainicio = models.TimeField(verbose_name="horainicio")
     horafin = models.TimeField(verbose_name="horafin")
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'tdiahoras'
+        db_table = 'Diahoras'
 
-class pacientes(models.Model):
+class Pacientes(models.Model):
     apellido = models.CharField(max_length=50, verbose_name="apellido")
     nombre = models.CharField(max_length=50, verbose_name="nombre")
     telefono1 = models.CharField(max_length=50, verbose_name="telefono1")
     telefono2 = models.CharField(max_length=50, verbose_name="telefono2")
     email = models.CharField(max_length=50, verbose_name="email")
     fnacimiento = models.DateField(verbose_name="fnacimiento")
-    osocial = models.ForeignKey(obrasociales, on_delete=models.CASCADE, verbose_name="osocial") 
+    osocial = models.ForeignKey(Obrasociales, on_delete=models.CASCADE, verbose_name="osocial") 
     plan = models.CharField(max_length=50, verbose_name="plan")
     nrosocial = models.CharField(max_length=25, verbose_name="nrosocial")
     domicilio = models.CharField(max_length=150, verbose_name="domicilio")
@@ -83,33 +91,33 @@ class pacientes(models.Model):
     
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'pacientes'
+        db_table = 'Pacientes'
 
-class turnos(models.Model):
+class Turnos(models.Model):
     anio = models.IntegerField(verbose_name="anio") 
     mes = models.IntegerField(verbose_name="mes") 
     dia = models.DateField(verbose_name="dia")
-    tratamiento = models.ForeignKey(tratamientos, on_delete=models.CASCADE, verbose_name="tratamiento")
-    profesional = models.ForeignKey(profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
+    tratamiento = models.ForeignKey(Tratamientos, on_delete=models.CASCADE, verbose_name="tratamiento")
+    profesional = models.ForeignKey(Profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
     estado = models.CharField(max_length=8, verbose_name="estado") 
     hora = models.TimeField(verbose_name="hora")
-    paciente = models.ForeignKey(pacientes, on_delete=models.CASCADE, verbose_name="paciente")
+    paciente = models.ForeignKey(Pacientes, on_delete=models.CASCADE, verbose_name="paciente")
     llegada = models.TimeField(verbose_name="llegada")
     atencion = models.CharField(max_length=10, verbose_name="atencion") 
     tipo = models.CharField(max_length=9, verbose_name="tipo") 
 
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'turnos'
+        db_table = 'Turnos'
 
-class historiaclinicas(models.Model):
+class HistoriasClinicas(models.Model):
     dia = models.DateField(verbose_name="dia")
-    paciente = models.ForeignKey(pacientes, on_delete=models.CASCADE, verbose_name="paciente")
+    paciente = models.ForeignKey(Pacientes, on_delete=models.CASCADE, verbose_name="paciente")
     diagnostico = models.CharField(max_length=8, verbose_name="diagnostico") 
-    especialidad = models.ForeignKey(especialidades, on_delete=models.CASCADE, verbose_name="especialidad")
-    profesional = models.ForeignKey(profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
+    especialidad = models.ForeignKey(Especialidades, on_delete=models.CASCADE, verbose_name="especialidad")
+    profesional = models.ForeignKey(Profesionales, on_delete=models.CASCADE, verbose_name="profesional") 
     observacion = models.CharField(max_length=4000, verbose_name="observacion")
 
     class Meta:
         # Especifica el nombre de la tabla personalizado
-        db_table = 'historiaclinicas'
+        db_table = 'HistoriasClinicas'
