@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Turnos diarios{% endblock %}
+ {% block content %}
+ <div class="container">
+  <br>
+    <table id="libres" class="table table-striped shadow-lg mt-4" style="width:50%">
+    <h4>Listado de Turnos Diarios</h4>
+    <h5>Turnos libres dentro de los 15 días siguientes a hoy</h5>
+    <thead class="">
+    <tr height: 10px>
+    </thead>
+
+    <tbody>
+      {% for libres in libre %}
+      <td>{{libres.dia}}
+        <p style="color:red;">Total: {{libres.libres}}</p></td>
+        {% endfor %}
+    </tbody>
+    </table>  
+    {% if profesional_unico %}
+    <div class="table-responsive py-2">
+      <a id='enlace-agregar' href="{% url 'turnos_alta' profesional_unico.profesional  %}" class="btn btn-sm btn-success">Alta Turno</a>
+      {{ profesional_unico.profesional__apellido }} - {{ profesional_unico.profesional__nombre }}
+      </div>
+    {% endif %}
+
+    </br>
+   
+    <table id="turno" class="table table-striped shadow-lg mt-4" style="width:100%">
+    <thead class="bg-primary text-white">
+    <tr height: 50px>
+    <th scope="col">id</th>
+    <th scope="col">hora</th>
+    <th scope="col">dia</th>
+    <th scope="col">tratamiento</th>
+    <th scope="col">paciente</th>
+    <th scope="col">tipo</th>
+    <th scope="col">-</th>
+    <th scope="col">-</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for turnos in turnos_listado %}    <tr>  
+        <td>{{turnos.id}}</td>
+        <td>{{turnos.hora}}</td>
+        <td>{{turnos.dia|date:"d/m/Y"}}</td>
+        <td>{{turnos.descripcion_tratamiento}}</td>                      
+        <td>{{turnos.nombre_paciente}}</td>                      
+        <td>{{turnos.tipo_turno}}</td>   
+        <td><a href="{% url 'turnos_editar' turnos.id %}" class="btn btn-sm btn-info">Asignar</a></td>
+        <td><a href="{% url 'turnos_eliminar' turnos.id %}" class="btn btn-sm btn-danger btnEliminacion">Liberar</a></td>                   
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  
+    {% endblock %}
+    {% block scripts %}
+    
+    <link href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+
+
+    <script>
+    $(document).ready(function() {
+        var table = $('#turno').DataTable({
+            "searching": true,
+          // "order": [[1,5,2, "desc" ]]
+            "scrollX": false,
+            "scrollY": false,
+            "ordering": false,
+            //Esto sirve que se auto ajuste la tabla al aplicar un filtro
+            "scrollCollapse": false,
+            "lengthMenu": [[20, -1], [20, "All"]],
+            
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+            
+            initComplete: function() {
+                this.api().columns([2,3,4,5]).every(function() {
+                    var column = this;
+
+                    var select = $('<select><option value=""></option></select>')
+                        .appendTo($(column.header()))
+                        .on('change', function() {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            
+                                column
+                                .search(val ? '^' + val + '$' : '', true, false)
+                                .draw();
+                            
+                            
+                        });
+                        //Este codigo sirve para que no se active el ordenamiento junto con el filtro
+                    $(select).click(function(e) {
+                        e.stopPropagation();
+                    });
+                    //===================
+
+                    column.data().unique().sort().each(function(d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        
+                    });
+
+                });
+            },
+            "aoColumnDefs": [
+            { "bSearchable": false, "aTargets": [ 1 ] }
+                  
+          ] 
+          
+      
+          
+        });
+        //********Esta bendita linea hace la magia, adjusta el header de la tabla con el body 
+        table.columns.adjust();
+
+        
+
+    });
+
+  </script>
+</div>
+  {% endblock %}

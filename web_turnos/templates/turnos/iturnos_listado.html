@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Agenda por Profesional{% endblock %}
+ {% block content %}
+ <div class="container">
+    <table id="turno" class="table table-striped shadow-lg mt-4" style="width:100%">
+    <br>
+    <h4>Agenda por Profesional</h4>
+    <h5>Sólo se mostrarán los profesionales con calendario generado</h5>
+    <thead class="bg-primary text-white">
+    <tr height: 50px>
+    <th scope="col">id</th>
+    <th scope="col">Nombre</th>
+    <th scope="col">Apellido</th>
+    <th scope="col">-</th>
+    <th scope="col">-</th>
+    </tr>
+    </thead>
+  <br>
+    <tbody>
+      {% for profesional in profesionales %} 
+      <tr>  
+        <td>{{profesional.profesional__id}}</td>
+        <td>{{profesional.profesional__nombre}}</td>
+        <td>{{profesional.profesional__apellido}}</td>                      
+        <td><a href="{% url 'turnos_listado' profesional.profesional__id %}" class="btn btn-sm btn-info">Agenda</a></td>
+        <td><a href="{% url 'turnos_alta' profesional.profesional__id  %}"  class="btn btn-primary btn-sm btn-success">Alta Turno</a></td>                   
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+    {% endblock %}
+    {% block scripts %}
+
+    <link href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        var table = $('#turno').DataTable({
+            "searching": true,
+            //"order": [[1,5,2, "desc" ]],
+            "scrollX": false,
+            "scrollY": false,
+            "ordering": false,
+            //Esto sirve que se auto ajuste la tabla al aplicar un filtro
+            "scrollCollapse": false,
+            "lengthMenu": [[20, -1], [20, "All"]],
+            
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+            
+            initComplete: function() {
+                this.api().columns([2]).every(function() {
+                    var column = this;
+
+                    var select = $('<select><option value=""></option></select>')
+                        .appendTo($(column.header()))
+                        .on('change', function() {
+                            var val = $.fn.dataTable.util.escapeRegex(
+                                $(this).val()
+                            );
+                            
+                                column
+                                .search(val ? '^' + val + '$' : '', true, false)
+                                .draw();
+                            
+                            
+                        });
+                        //Este codigo sirve para que no se active el ordenamiento junto con el filtro
+                    $(select).click(function(e) {
+                        e.stopPropagation();
+                    });
+                    //===================
+
+                    column.data().unique().sort().each(function(d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        
+                    });
+
+                });
+            },
+            "aoColumnDefs": [
+            { "bSearchable": false, "aTargets": [ 1 ] }
+                  
+          ] 
+        });
+        //********Esta bendita linea hace la magia, adjusta el header de la tabla con el body 
+        table.columns.adjust();
+
+    });
+
+  </script>
+</div>
+{% endblock %}

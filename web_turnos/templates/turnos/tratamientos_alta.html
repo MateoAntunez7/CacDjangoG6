@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Alta de Tratamientos{% endblock %}
+ {% block section_title %}Alta de Tratamientos{% endblock %}
+
+ {% block content %}
+
+ <div class="container">
+    <form method="POST" action="">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+      {% if field.name == 'estado' %}
+      <div class="form-group">
+        <label for="{{ form.estado.id_for_label }}">Estado:</label>
+        {{ field }}
+      </div>
+      {% elif field.name == 'descripcion' %}
+      <div class="form-group">
+              <label for="{{ field.id_for_label }}">Descripción:</label>
+              {{ field }}
+      </div>
+      {% else %}
+          {{ field }}
+      {% endif %}
+      {% endfor %}
+      <input class="btn btn-sm btn-info" type="submit" value="Guardar">
+      <a href="{% url 'tratamientos_listado' %}"  class="btn btn-sm btn-info">Volver</a>
+    </form>
+  </div>
+  <br>
+  <section class="info_section layout_padding">
+    <div class="container layout_padding-top layout_padding2-bottom">
+      <div class="logo-box">
+        <a href="{% url 'index' %}">
+          <img src="{% static 'publica/images/logo.png' %}" alt="" />
+  
+        </a>
+      </div>
+ {% endblock %}
+    </div>
+  </section>

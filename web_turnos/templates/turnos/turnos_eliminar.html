@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Eliminación de Turnos{% endblock %}
+ {% block section_title %}Eliminación de Turnos{% endblock %}
+
+ {% block content %}
+ 
+  <div class="card">
+    <div class="card-body">
+      <form method="post">{% csrf_token %}
+        <p>Esta seguro que quiere eliminar este ítem "{{ object.descripcion }}"?</p>
+        <input type="submit" value="Confirmar" class="btn btn-sm btn-danger">
+        <a href="{% url 'iturnos_listado' %}"  class="btn btn-sm btn-info">Volver</a>
+    </form>
+    </div>
+</div>
+  <br>
+  <section class="info_section layout_padding">
+    <div class="container layout_padding-top layout_padding2-bottom">
+      <div class="logo-box">
+        <a href="{% url 'index' %}">
+          <img src="{% static 'publica/images/logo.png' %}" alt="" />
+  
+        </a>
+      </div>
+    {% endblock %}
+  </div>
+</section>

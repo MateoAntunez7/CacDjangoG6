@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css%}
+    
+{%endblock%}
+
+{% block title %}Alta de alumno{% endblock %}
+{% block section_title %}Alta de alumno{% endblock %}
+{% block content %}
+    <h3>Datos del ingresante</h3>
+    <form method="post" action="{% url 'index' %}">
+        {% csrf_token %}
+        {{ alta_alumno_form.as_p }}
+        <input type="submit">
+    </form>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Alta de Turnos{% endblock %}
+ {% block section_title %}Alta de Turnos{% endblock %}
+
+ {% block content %}
+  <div class="container">
+    <form method="POST" action="">
+      {% csrf_token %}
+      {% for field in form.visible_fields %}
+      {% if field.name == 'tipo' %}
+      <div class="form-group">
+        <label for="{{ form.tipo.id_for_label }}">Tipo:</label>
+        <div class="col-sm-4 col-md-2">
+          {{ field }}
+        </div>
+      </div>
+      {% elif field.name == 'profesional' %}
+      <div class="form-group">
+             <label for="{{ field.id_for_label }}">Profesional:</label>
+      {{ field }}
+      </div>
+      {% elif field.name == 'paciente' %}
+      <div class="form-group">
+              <label for="{{ field.id_for_label }}">Paciente:</label>
+        {{ field }}
+      </div>
+      {% elif field.name == 'tratamiento' %}
+      <div class="form-group">
+              <label for="{{ field.id_for_label }}">Tratamiento:</label>
+        {{ field }}
+      </div>
+      {% elif field.name == 'dia' %}
+      <div class="form-group">
+              <label for="{{ field.id_for_label }}">Día:</label>
+        {{ field }}
+      </div>
+      {% elif field.name == 'hora' %}
+      <div class="form-group">
+              <label for="{{ field.id_for_label }}">Hora:</label>
+        {{ field }}
+      </div>
+      {% else %}
+        {{ field }}
+      {% endif %}
+      {% endfor %}
+      <input class='btn btn-primary btn-sm' type="submit" value="Guardar">
+      <a href="{% url 'iturnos_listado' %}""  class="btn btn-sm btn-info">Volver</a>
+    </form>
+  </div>
+  <br>
+  <section class="info_section layout_padding">
+    <div class="container layout_padding-top layout_padding2-bottom">
+      <div class="logo-box">
+        <a href="{% url 'index' %}">
+          <img src="{% static 'publica/images/logo.png' %}" alt="" />
+  
+        </a>
+      </div>
+ {% endblock %}
+    </div>
+  </section>
