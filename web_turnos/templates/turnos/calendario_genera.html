@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+ {% load static %} 
+
+ {% block title %}Generar Calendario{% endblock %}
+ {% block section_title %}Generar Calendario{% endblock %}
+
+ {% block content %}
+ <br>
+ <div class="container">
+  <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input class='btn btn-primary btn-sm' type="submit" value="Generar">
+  </form>
+</div>
+<br>
+  <section class="info_section layout_padding">
+    <div class="container layout_padding-top layout_padding2-bottom">
+      <div class="logo-box">
+        <a href="{% url 'index' %}">
+          <img src="{% static 'publica/images/logo.png' %}" alt="" />
+  
+        </a>
+      </div>
+ {% endblock %}
+    </div>
+  </section>
