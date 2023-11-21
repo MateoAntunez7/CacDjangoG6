@@ -1,7 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Tratamientos, Turnos, Profesionales, Pacientes
+from .models import Tratamientos, Turnos, Profesionales, Pacientes, Diainactivos, Feriados, TratamientosProfesionales, Tratamientos
 from django.forms.widgets import DateInput, TimeInput
+from datetime import datetime
+from django.utils.safestring import mark_safe
+from django.db.models import Q
 
 
 #class BlueBackgroundTextInput(forms.TextInput):
@@ -51,12 +54,10 @@ class CalendarioGeneraForm(forms.Form):
 
 class AltaTurnosForm(forms.ModelForm):
     TIPO_CHOICES = (
-    ('STurno', 'STurno'),
-    ('STurnoE', 'STurnoE'),
-   # ('Turno', 'Turno'), #porque los turnos ya están habilitados desde la agenda
-    ('Practicas', 'Practicas'),
-)
-    
+        ('STurno', mark_safe('<span style="font-size: 14px;">Sobre-Turno</span>')),
+        ('STurnoE', mark_safe('<span style="font-size: 16px;">Sobre-Turno-Especial</span>')),
+        ('Practicas', mark_safe('<span style="font-size: 18px;">Prácticas</span>')),
+    ) 
     class Meta:
         model = Turnos
         fields = ['tipo',
@@ -66,11 +67,11 @@ class AltaTurnosForm(forms.ModelForm):
                   'dia',
                   'hora']
         
-    dia = forms.DateField(widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}))
+    dia = forms.DateField(widget=forms.Select(attrs={'class': 'form-control', 'style': 'width: 200px; height: 40px;'}))
     
-    hora = forms.TimeField(widget=TimeInput(attrs={'type': 'time', 'class': 'form-control'}))
+    hora = forms.TimeField(widget=TimeInput(attrs={'type': 'time', 'class': 'form-control', 'style': 'width: 200px; height: 40px;'}))
         
-    tipo = forms.ChoiceField(choices=TIPO_CHOICES, widget=forms.Select(attrs={'class': 'form-control', 'style': 'width: 150px; height: 30px;'}))
+    tipo = forms.ChoiceField(choices=TIPO_CHOICES, widget=forms.Select(attrs={'class': 'form-control', 'style': 'width: 200px; height: 40px;'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,12 +79,35 @@ class AltaTurnosForm(forms.ModelForm):
         # Excluye los profesionales con id igual a 0
         self.fields['profesional'].queryset = Profesionales.objects.exclude(id=0)
 
-        # Excluye los profesionales con id igual a 0
-        self.fields['tratamiento'].queryset = Tratamientos.objects.exclude(id=0)
+       # Excluye los tratamientos con estado 'Inactivo' y con id igual a 0
+        self.fields['tratamiento'].queryset = Tratamientos.objects.exclude(Q(estado='Inactivo') | Q(id=0) | ~Q(estado='Activo'))
 
         # Excluye los profesionales con id igual a 0
         self.fields['paciente'].queryset = Pacientes.objects.exclude(id=0)
 
+        # Obtener la lista de días disponibles excluyendo los días en Diainactivos y Feriados
+        dias_disponibles = self.obtener_dias_disponibles()
+
+        # Actualizar las opciones del campo 'dia'
+        self.fields['dia'].widget.choices = dias_disponibles
+
+    def obtener_dias_disponibles(self):
+
+         # Obtén la fecha y hora actual en Python
+        fecha_actual = datetime.now()
+
+        # Obtener todos los días disponibles
+        dias_turnos = Turnos.objects.filter(dia__gte=fecha_actual).values_list('dia', flat=True).distinct()
+
+        # Obtener los días en Diainactivos y Feriados
+        # No son necesarios al final porque lo restrinjo en el querie dias_turnos
+        dias_inactivos = Diainactivos.objects.values_list('diadesde', flat=True)
+        dias_feriados = Feriados.objects.values_list('dia', flat=True)
+
+        # Filtrar los días disponibles excluyendo los días en Diainactivos y Feriados
+        dias_disponibles = [(dia, dia.strftime('%Y-%m-%d')) for dia in dias_turnos if dia not in dias_inactivos and dia not in dias_feriados]
+
+        return dias_disponibles
 
 class EditarTurnosForm(forms.ModelForm):
    
@@ -95,8 +119,21 @@ class EditarTurnosForm(forms.ModelForm):
    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Excluye los profesionales con id igual a 0
-        self.fields['tratamiento'].queryset = Tratamientos.objects.exclude(id=0)
+        # Excluye los tratamientos con estado 'Inactivo' y con id igual a 0
+        self.fields['tratamiento'].queryset = Tratamientos.objects.exclude(Q(estado='Inactivo') | Q(id=0) | ~Q(estado='Activo'))
 
         # Excluye los profesionales con id igual a 0
         self.fields['paciente'].queryset = Pacientes.objects.exclude(id=0)
+
+class TratamientosProfesionalesForm(forms.ModelForm):
+    tratamientos = forms.ModelMultipleChoiceField(queryset=Tratamientos.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = TratamientosProfesionales
+        fields = ['tratamientos']
+
+
+class TratamientoForm(forms.ModelForm):
+    class Meta:
+        model = Tratamientos
+        fields = ['descripcion', 'estado']

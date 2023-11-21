@@ -1,0 +1,20 @@
+{% extends "baseapp.html" %}
+{% load static %} 
+
+ {% block content %}
+   <h2>Alta de Tratamientos para {{ profesional.nombre }} {{ profesional.apellido }}</h2>
+ 
+   <form method="post">
+     {% csrf_token %}
+     {{ tratamiento_form.as_p }}
+     {{ tratamientos_profesionales_form.as_p }}
+     <input type="submit" value="Guardar">
+   </form>
+ 
+   <h3>Tratamientos asociados:</h3>
+   <ul>
+     {% for tratamiento_profesional in profesional.tratamientosprofesionales_set.all %}
+       <li>{{ tratamiento_profesional.tratamiento.descripcion }}</li>
+     {% endfor %}
+   </ul>
+ {% endblock %}

@@ -57,30 +57,14 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'contacto' %}">Contactanos</a>
                         </li>
-                        {% if not user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'indexapp' %}">APP</a>
                         </li>
-                        {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout || {{user.username}}</a>
-                        </li>
-                        {% endif %}
                         </ul>
                     </div>
                     </div>
                 </nav>
-
-                <nav>
-                    <ul>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url 'iturnos_listado' %}">Turnos</a></li>
-                        <li><a href="{% url 'tratamientos_listado' %}">Tratamientos</a></li>
-                        <li><a href="{% url 'calendario_genera' %}">Generar Agenda</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                </div>
+            </div>
             </header>
         </div>
         

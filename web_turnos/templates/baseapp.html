@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas Médicas</title>
+    <link href="{% static '/publica/css/baseapp.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static '/publica/css/bootstrap.css' %}" />
+</head>
+<body>
+<div class="menu-container">
+    <div class="menu-toggle" onclick="toggleMenu()">&#9776; Menú</div>
+    <div class="menu" id="myMenu">
+        <div class="menu-close" onclick="toggleMenu()">&times;</div>
+        <a href="{% url 'index' %}">Inicio</a>   
+        <a href="{% url 'iturnos_listado' %}">Turnos</a>  
+        <div class="menu-item" onclick="toggleSubMenu('submenu2')">
+            <a href="#">Parametros</a>
+            <div class="submenu" id="submenu2">
+                <a href="{% url 'calendario_genera' %}">Generar</a>
+                <a href="{% url 'tratamientos_listado' %}">Tratamientos</a>
+            </div>
+        </div>     
+                {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}">Login</a>
+                {% else %}
+                <a href="{% url 'logout' %}">Logout</a>
+                <h5>'     {{user.username}}</h5>
+                {% endif %}
+    </div>
+</div>
+
+<script>
+    function toggleMenu() {
+        var menu = document.getElementById("myMenu");
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
+   
+    
+    function toggleSubMenu(submenuId) {
+        var submenu = document.getElementById(submenuId);
+        var maxHeight = (submenu.style.maxHeight === "0px" || submenu.style.maxHeight === "") ? submenu.scrollHeight + "px" : "0px";
+        submenu.style.maxHeight = maxHeight;
+    }
+
+</script>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+
+
+</body>    
+</hrml>

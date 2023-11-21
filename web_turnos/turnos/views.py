@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect, HttpResponseRedirect
 from datetime import datetime
-from .forms import ContactoForm, AltaTratamientoForm, EditarTratamientoForm, CalendarioGeneraForm, AltaTurnosForm, EditarTurnosForm
+from .forms import ContactoForm, AltaTratamientoForm, EditarTratamientoForm, CalendarioGeneraForm, AltaTurnosForm, EditarTurnosForm, TratamientoForm, TratamientosProfesionalesForm
 from django.contrib import messages
 from django.urls import reverse
 from django.core.mail import send_mail
@@ -19,6 +19,7 @@ from django.db.models.functions import Concat
 #from django.contrib.auth.decorators import login_required
 #from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponseBadRequest
 
 # Create your views here.
 def index(request):
@@ -29,6 +30,9 @@ def contacto(request):
 
 def nosotros(request):
     return render(request, 'turnos/nosotros.html', {})
+
+def indexapp(request):
+    return render(request, 'turnos/indexapp.html', {})
 
 def tratamientos(request):
     return render(request, 'turnos/tratamientos.html', {})
@@ -114,7 +118,6 @@ def es_administrador(user):
 
 @user_passes_test(es_administrador)
 def calendario_genera(request):
-    
     opciones_profesional = [(profesional.id, profesional.apellido + ' ' + profesional.nombre) for profesional in Profesionales.objects.exclude(id=0)]
 
     if request.method == 'POST':
@@ -124,11 +127,28 @@ def calendario_genera(request):
             profesional_id = form.cleaned_data['profesional']
             fecha_desde = form.cleaned_data['fecha_desde']
             fecha_hasta = form.cleaned_data['fecha_hasta']
+            
+            accion = request.POST.get('accion')
+           
+            if accion == 'Generar': 
+                # Validar si ya existen calendarios para el profesional y las fechas
+                if Turnos.objects.filter(profesional_id=profesional_id, dia__range=(fecha_desde, fecha_hasta)).exists():
+                    messages.success(request, 'Ya existen calendarios generados para el profesional en las fechas proporcionadas.')  # Agregar mensaje de éxito
+                else:
+                    with connection.cursor() as cursor:
+                        cursor.callproc('sp_gcalendario', [profesional_id, fecha_desde, fecha_hasta])
+                        messages.success(request, 'Calendario generado exitosamente.')  # Agregar mensaje de éxito
+                        # Procesar el resultado si es necesario
+                        # result = cursor.fetchall()
 
-            with connection.cursor() as cursor:
-                cursor.callproc('sp_gcalendario', [profesional_id, fecha_desde, fecha_hasta])
-                # Procesar el resultado si es necesario
-                # result = cursor.fetchall()
+            elif accion == 'Eliminar':
+
+                exito, mensaje = existe_turno(profesional_id, fecha_desde, fecha_hasta)
+                # Hacer algo con la respuesta, por ejemplo, mostrar en el template
+                if exito:
+                    messages.success(request, mensaje)
+                else:
+                    messages.error(request, mensaje)
 
     else:
         # Obtener opciones para el campo profesional desde la base de datos
@@ -136,6 +156,36 @@ def calendario_genera(request):
 
     return render(request, 'turnos/calendario_genera.html', {'form': form})
 
+
+def existe_turno(profesional_id, dia_desde, dia_hasta):
+    try:
+        # Verificar si hay algún turno con paciente diferente de cero en el rango especificado
+        turno_con_paciente = Turnos.objects.filter(
+            profesional_id=profesional_id,
+            dia__range=(dia_desde, dia_hasta),
+            paciente_id__gt=0
+        ).exists()
+
+        if turno_con_paciente:
+            # Informar que no se puede eliminar debido a la existencia de turnos con pacientes
+            return False, "No se puede eliminar el calendario porque hay turnos con pacientes en el rango especificado."
+        else:
+
+        # Obtener todos los turnos del profesional en el rango especificado sin paciente
+           turnos_a_eliminar = Turnos.objects.filter(
+            profesional_id=profesional_id,
+            dia__range=(dia_desde, dia_hasta),
+            paciente_id=0
+        )
+
+        # Eliminar los turnos encontrados
+        turnos_a_eliminar.delete()
+
+        # Informar exitosamente
+        return True, "Calendario eliminado exitosamente."
+    except Exception as e:
+        # Capturar excepciones y devolver un mensaje de error
+        return False, f"Error al eliminar el calendario: {str(e)}"
 
 class TurnosListView(ListView):
     model = Turnos
@@ -151,12 +201,7 @@ class TurnosListView(ListView):
         context = super(TurnosListView, self).get_context_data(**kwargs)
         profesional_id = self.kwargs['profesional_id']
 
-    # def get_queryset(self):
-    #     return Turnos.objects.all()
-    
-    # def get_context_data(self, **kwargs):
-    #     context = super(TurnosListView, self).get_context_data(**kwargs)
-
+  
         # Obtén la fecha y hora actual en Python
         fecha_actual = datetime.now()
 
@@ -229,20 +274,7 @@ class ProfesionalesListView(ListView):
             
         ).order_by('profesional__apellido').distinct().values('profesional__id', 'profesional__apellido', 'profesional__nombre')
     
- 
-class TurnosCreateView(CreateView):
-    model = Turnos
-    template_name = 'turnos/turnos_alta.html'
-    form_class = AltaTurnosForm
-    success_url = reverse_lazy('iturnos_listado')  # Reemplaza 'nombre_de_tu_url' con el nombre de la URL a la que deseas redirigir
 
-    def form_valid(self, form):
-        # Antes de guardar el formulario, establecemos el valor del campo 'anio'
-        form.instance.anio = form.cleaned_data['dia'].year
-        
-        form.instance.mes = form.cleaned_data['dia'].month
-        
-        return super().form_valid(form)
     
 
 class TurnosDeleteView(DeleteView):
@@ -278,3 +310,59 @@ class TurnosUpdateView(UpdateView):
    template_name = 'turnos/turnos_editar.html'
    form_class = EditarTurnosForm
    success_url = reverse_lazy('iturnos_listado')
+
+    
+class TurnosCreateView(CreateView):
+    model = Turnos
+    template_name = 'turnos/turnos_alta.html'
+    form_class = AltaTurnosForm
+    success_url = reverse_lazy('iturnos_listado')  # Reemplaza 'nombre_de_tu_url' con el nombre de la URL a la que deseas redirigir
+
+    def form_valid(self, form):
+        # Antes de guardar el formulario, establecemos el valor del campo 'anio'
+        form.instance.anio = form.cleaned_data['dia'].year
+        form.instance.mes = form.cleaned_data['dia'].month
+
+        # Validar si el día está marcado como inactivo
+        if self.dia_esta_inactivo(form.cleaned_data['dia'], form.cleaned_data['profesional']):
+            return HttpResponseBadRequest("El día seleccionado está cargado como inactivo.")
+        
+        # Validar si el día está marcado como feriado
+        if self.dia_esta_feriado(form.cleaned_data['dia']):
+            return HttpResponseBadRequest("El día seleccionado está cargado como feriado.")
+
+        return super().form_valid(form)
+    
+    def dia_esta_inactivo(self, dia, profesional):
+        # Verificar si el día está marcado como inactivo para el profesional
+        return Diainactivos.objects.filter(diadesde=dia, profesional=profesional).exists()
+    
+    def dia_esta_feriado(self, dia):
+        # Verificar si el día está marcado como inactivo para el profesional
+        return Feriados.objects.filter(dia=dia).exists()
+    
+
+def alta_tratamientos_profesionales(request, profesional_id):
+    profesional = Profesionales.objects.get(id=profesional_id)
+
+    if request.method == 'POST':
+        tratamiento_form = TratamientoForm(request.POST)
+        tratamientos_profesionales_form = TratamientosProfesionalesForm(request.POST)
+
+        if tratamiento_form.is_valid() and tratamientos_profesionales_form.is_valid():
+            tratamiento = tratamiento_form.save()
+            tratamiento_profesional = tratamientos_profesionales_form.save(commit=False)
+            tratamiento_profesional.profesional = profesional
+            tratamiento_profesional.tratamiento = tratamiento
+            tratamiento_profesional.save()
+
+            return redirect('vista_detalle_profesional', profesional_id=profesional.id)
+    else:
+        tratamiento_form = TratamientoForm()
+        tratamientos_profesionales_form = TratamientosProfesionalesForm()
+
+    return render(
+        request,
+        'tratamientos_profesional.html',
+        {'tratamiento_form': tratamiento_form, 'tratamientos_profesionales_form': tratamientos_profesionales_form}
+    )
