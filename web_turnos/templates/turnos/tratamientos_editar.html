@@ -1,13 +1,10 @@
-{% extends "base.html" %}
+{% extends "baseapp.html" %}
  {% load static %} 
 
  {% block title %}Modificación de Tratamientos{% endblock %}
  {% block section_title %}Modificación de Tratamientos{% endblock %}
 
  {% block content %}
-  <div class="barra-superior">
-    <a href="{% url 'tratamientos_listado' %}">&#x1F860; Volver</a>
-  </div>
   
   <div class="container">
     <form method="POST" action="{% url 'tratamientos_editar' tratamientos.id %}">
@@ -28,17 +25,10 @@
       {% endif %}
       {% endfor %}
       <input class="btn btn-sm btn-info" type="submit" value="Guardar">
+      <a href="{% url 'tratamientos_listado' %}"  class="btn btn-sm btn-info">Volver</a>
     </form>
   </div>
   <br>
-  <section class="info_section layout_padding">
-    <div class="container layout_padding-top layout_padding2-bottom">
-      <div class="logo-box">
-        <a href="{% url 'index' %}">
-          <img src="{% static 'publica/images/logo.png' %}" alt="" />
   
-        </a>
-      </div>
     {% endblock %}
-  </div>
-</section>
+

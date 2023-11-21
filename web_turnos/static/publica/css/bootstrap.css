@@ -61,6 +61,7 @@ body {
   color: #212529;
   text-align: left;
   background-color: #fff;
+  background-image: url('/static/publica/images/contact-bg.jpg');
 }
 
 [tabindex="-1"]:focus {

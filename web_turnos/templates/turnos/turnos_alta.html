@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "baseapp.html" %}
  {% load static %} 
 
  {% block title %}Alta de Turnos{% endblock %}
@@ -50,14 +50,6 @@
     </form>
   </div>
   <br>
-  <section class="info_section layout_padding">
-    <div class="container layout_padding-top layout_padding2-bottom">
-      <div class="logo-box">
-        <a href="{% url 'index' %}">
-          <img src="{% static 'publica/images/logo.png' %}" alt="" />
-  
-        </a>
-      </div>
+ 
  {% endblock %}
-    </div>
-  </section>
+ 
